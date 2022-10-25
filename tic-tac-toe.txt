@@ -1,0 +1,222 @@
+Intro to React - Lab Notebook
+-----------------------------------------------
+Setup steps:
+Installed Node.JS 16.18.0 LTS
+Using VSCode
+Open terminal
+npx create-react-app my-app (created git commit?!)
+cd my-app
+npm start (started npm and displayed react logo and 
+default link to tutorial)
+Deleted all files in the src/ folder
+Made new files in src, added import statements to index.js
+Installed babel JS syntax highlighter in VSCode
+
+--------------------------------------------------
+Tutorial steps + notes:
+Change the definitions of square and board class
+
+class Board extends React.Component {
+  renderSquare(i) {
+    return <Square value={i} />;
+  }
+}
+Add a button to square
+
+class Square extends React.Component {
+  render() {
+    return (
+      <button className="square">
+        {this.props.value}
+      </button>
+    );
+  }
+}
+
+Add a state to square to mark an X
+“always call super when defining the constructor of a subclass”
+“all React component classes that have a constructor
+should start with a super(props) call”
+
+class Square extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: null,
+    };
+  }
+
+  render() {
+    return (
+      <button
+        className="square"
+        onClick={() => this.setState({value: 'X'})}
+      >
+        {this.state.value}
+      </button>
+    );
+  }
+}
+
+
+Downloading react developer tools for chrome
+Right click element to inspect using react dev tool
+
+Adding the state of all 9 squares to board to keep 
+track of when the game is done
+
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+    };
+  }
+
+  renderSquare(i) {
+    return <Square value={i} />;
+  }
+
+Passing down two props from Board to Square: value and onClick
+Change the board to keep track of square states instead 
+of each individual square keeping track of their own states 
+after being clicked
+Squares are now controlled components bc board has full control 
+over them
+
+class Square extends React.Component {
+  render() {
+    return (
+      <button
+        className="square"
+        onClick={() => this.props.onClick()}
+      >
+        {this.props.value}
+      </button>
+    );
+  }
+}
+
+
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+    };
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    squares[i] = 'X';
+    this.setState({squares: squares});
+  }
+
+
+Changed square to function instead of component
+function components are a simpler way to write components 
+that only contain a render method and don’t have their own state
+
+function Square(props) {
+  return (
+    <button className="square" onClick={props.onClick}>
+      {props.value}
+    </button>
+  );
+}
+
+Change obj under board → bool for xIsNext
+
+class Board extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+      xIsNext: true,
+    };
+  }
+
+Use bool to see if next one is X or O, update this for 
+click in board so that set square to x if true if not 
+then o, then set next state to the opposite of whatever 
+it is right now
+
+ handleClick(i) {
+    const squares = this.state.squares.slice();
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext,
+    });
+  }
+
+
+Add a status for what the next player will put down using 
+this state (under board)
+
+render() {
+    const status = 'Next player: ' + (this.state.xIsNext 
+    ? 'X' : 'O');
+
+    return (
+…
+
+
+Add helper function to calculate when winner
+Call function in board class in render
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && 
+    squares[a] === squares[c]) {
+      return squares[a];
+    }
+  }
+  return null;
+}
+
+ render() {
+    const winner = calculateWinner(this.state.squares);
+    let status;
+    if (winner) {
+      status = 'Winner: ' + winner;
+    } else {
+      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+    }
+
+
+Change so that when clicked, ignores if won or if already 
+filled (under board in handleClick)
+
+handleClick(i) {
+    const squares = this.state.squares.slice();
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext,
+    });
+  }
+
+
+Immutability: 
+Avoiding direct data mutation lets us keep previous versions 
+of the game’s history intact, and reuse them later
+Detecting changes in mutable objects is difficult because 
+they are modified directly
+Easier in immutable objects: if immutable object that is being 
+referenced is different than the previous one, then the object 
+has changed

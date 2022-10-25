@@ -1,0 +1,165 @@
+
+Chorus lapilla
+
+------------------------------------------------------------------
+Goal:
+Only be able to add 3 onto board, then change state to 
+“filled” or something
+Check if there are 6 total pieces on the board
+Be able to click on existing piece and then move it after 
+3 is filled
+
+In tic tac toe:
+Square function with button that props onclick
+Class board:
+constructor had state for squares to have 9 and a bool Xis next
+Function handleclick:
+If already won or squares at i?! Then don’t click
+Set square to next state
+Render square click
+Render: calculate winner, returns all 9 squares rendered
+Game:
+Render: returns board ⇒ nothing much
+
+Changes:
+Game doesn’t end with square is full: change handleClick so 
+that it only stops clicking when winner is calculated
+Created a global function to check if there are 6 total pieces 
+of X and O
+
+function sixPieces(squares){
+  let counter = 0;
+  for (let i = 0; i < 9; i++){
+    if(squares[i]==='X' || squares[i]==='O'){
+        counter++;
+    }
+  }
+  if (counter >=6){
+    return (true);
+  }
+  else {
+    return (false);
+  }
+}
+
+Changed handleClick so that there are two sections of game, 
+where you normally put down pieces and when you can move your 
+pieces that already exist but can’t add a new piece
+Second half of game:
+Create a new state called - clicked for square→ goal is to 
+have this state be true or false depending on if this square was 
+clicked or not
+If square is clicked, needed to match the current isnextX state 
+
+if ((squares[i]==='X' && this.state.xIsNext) || (squares[i]==='O' 
+&& !this.state.xIsNext)){ // if clicked on right piece
+        if(alreadySelected(clickStates)){ // if already selected 
+        a piece to move
+          // reset
+          for (let x = 0; x < 9; x++){
+            clickStates[x] = false;
+          }
+        }
+clickStates[i] = true;
+
+if its not match then doesn’t do anything
+if there is already one square with the matching isnextstate 
+already clicked, change it to new clicked square and unclick 
+old square
+
+// reset
+          for (let x = 0; x < 9; x++){
+            clickStates[x] = false;
+          }
+
+
+Else if the square clicked doesn’t have anything in it AND there 
+is one square clicked → move clicked square to new square and 
+update isNextX
+
+else if(squares[i]===null && alreadySelected(clickStates)){
+        // set states
+        let pieceR = returnSelected(clickStates);
+        if (pieceR === -1){
+          return;
+        }
+        else{
+          squares[pieceR] = null;
+          squares[i] = this.state.xIsNext ? 'X' : 'O';
+          // remove all selected squares
+          for (let x = 0; x < 9; x++){
+              clickStates[x] = false
+          }
+          this.setState({
+            squares: squares,
+            clickStates: clickStates,
+            xIsNext: !this.state.xIsNext,
+            });
+        }
+      }
+
+Make sure updating the states using the copies
+
+        this.setState({
+          squares: squares,
+          clickStates: clickStates,
+          });
+
+
+Other functions created:
+
+function alreadySelected(clickStates){
+  for (let i = 0; i < 9; i++){
+    if(clickStates[i] === true){
+      return(true);
+    }
+  }
+  return(false);
+}
+
+
+function returnSelected(clickStates){
+  for (let i = 0; i < 9; i++){
+    if(clickStates[i] === true){
+      return(i)
+    }
+  }
+  return(-1)
+}
+
+Notes:
+In JavaScript, `const` means that the identifier can't be 
+reassigned, it can be mutable
+bug: only the first top left square works
+
+npm pack --dry-run
+
+output:
+bash-4.4$ npm pack --dry-run
+npm notice 
+npm notice   chorus-lapilli@0.1.0
+npm notice === Tarball Contents === 
+npm notice 3.4kB README.md           
+npm notice 817B  package.json        
+npm notice 3.9kB public/favicon.ico  
+npm notice 1.7kB public/index.html   
+npm notice 5.3kB public/logo192.png  
+npm notice 9.7kB public/logo512.png  
+npm notice 492B  public/manifest.json
+npm notice 67B   public/robots.txt   
+npm notice 0B    src/index.css       
+npm notice 4.3kB src/index.js        
+npm notice === Tarball Details === 
+npm notice name:          chorus-lapilli                          
+npm notice version:       0.1.0                                   
+npm notice filename:      chorus-lapilli-0.1.0.tgz                
+npm notice package size:  23.1 kB                                 
+npm notice unpacked size: 29.6 kB                                 
+npm notice shasum:        6d61cb834d3b9838edcbd5e91ed339d992a9dce5
+npm notice integrity:     sha512-eFe4/911gu7fH[...]uc2PFVdvxP6/w==
+npm notice total files:   10                                      
+npm notice 
+chorus-lapilli-0.1.0.tgz
+
+
+
